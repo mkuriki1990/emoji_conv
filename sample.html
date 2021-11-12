@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <title>Twitter 絵文字変換さん</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <!-- Facebook 用 OGP -->
+        <meta property="og:title" content="Twitter 絵文字変換さん">
+        <meta property="og:description" content="Twitter で使われる絵文字について日本語名称から変換するツール. ">
+        <meta property="og:url" content="https://mkuriki.com/emoji_conv/">
+        <meta property="og:image" content="https://mkuriki.com/emoji_conv/img/ogp_emoji_conv.png">
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:site" content="@mkuriki_">
+        <meta name="twitter:url" content="https://mkuriki.com/emoji_conv/">
+        <meta name="twitter:title" content="Twitter 絵文字変換さん">
+        <meta name="twitter:description" content="Twitter で使われる絵文字について日本語名称から変換するツール. ">
+        <meta name="twitter:image" content="https://mkuriki.com/emoji_conv/img/ogp_emoji_conv.png">
+
+        <style type="text/css">
+        <!--
+            @font-face { font-family: emoji; src: url("./font/TwitterColorEmoji-SVGinOT.woff") } .emoji { font-family: emoji };
+            @font-face { font-family: twemoji; src: url("./font/Twemoji.woff") } .twemoji { font-family: twemoji })
+        -->
+        </style>
+
+        <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+        <link rel="stylesheet" href="./css/emoji_conv.css">
+
+        <!-- Bootstrap icon CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css">
+
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-9">
+                    <h2 class="text-center">Twitter 絵文字変換さん</h2>
+                    <br>
+
+                    <form>
+                        <!-- 入力した文字数によって幅を変更する. style = "width" は javascript の扱いに依存する -->
+                        <textarea type="text" id="inputForm" class="row-3" placeholder="変換前テキスト入力" onkeypress="renew();" onkeyup="renew();" style="overflow:auto; font-style: normal; overflow:auto"></textarea><br>
+                    </form>
+                    <br>
+                    <div class="row justify-content-center"> <!-- div buttons -->
+
+                        <div class="col-4 col-md-3">
+                            <form> <!-- 変換ボタン -->
+                                <button id="convertButton" class="btn btn--orange">絵文字変換<br><i class="bi-arrow-down-circle-fill"></i></button>
+                            </form>
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <form> <!-- サンプル表示ボタン -->
+                                <button id="sampleButton" class="btn btn--orange">サンプル<br><i class="bi-chat-left-text-fill"></i></button>
+                            </form>
+                        </div>
+                        <div class="col-4 col-md-3">
+                            <form> <!-- ランダム表示ボタン -->
+                                <button id="randomButton" class="btn btn--orange">ランダム<br>5選 <i class="bi-shuffle"></i></button>
+                            </form>
+                        </div>
+                    </div> <!-- div buttons -->
+                    <br>
+                    <!-- 結果画像出力用 -->
+                    <form>
+                        <div id="img_convert_resion"> <!-- 画像化する部分を指定する div -->
+                            <textarea type="text" id="resultForm" class="row-3" placeholder="結果" onfocus="this.select()" style="overflow: auto; font-style: normal; overflow:auto;"></textarea>
+                        </div> <!-- id="img_convert_resion" -->
+                    </form>
+
+                    <label for="fontRadioGroup">フォントオプション : 2 種類から選択</label><br>
+                    <label for="twemoji_radio" style="font-family: twemoji;">
+                        <p>
+                        <input name="fontRadioGroup" type="radio" id="twemoji_radio" value="twemoji" onclick="changeRadio();" checked="true">
+                        📺, 🥐, 🤾‍♀️, 🍠, 🐻‍❄️, 🎮 <br><small>(デフォルト : Unicode 13 の絵文字がでない不具合あり)</small>
+                        </p>
+                    </label>
+                    <br>
+                    <label for="emoji_radio" style="font-family: emoji;">
+                        <p>
+                        <input name="fontRadioGroup" type="radio" id="emoji_radio" value="emoji" onclick="changeRadio();"> 
+                        📺, 🥐, 🤾‍♀️, 🍠, 🐻‍❄️, 🎮 <br><small>(Firefox と Edge 以外でカラーにならない不具合あり)</small>
+                        </p>
+                    </label>
+                    <p style="font-family: twemoji;">
+                    この絵文字🐻‍❄️,が「シロクマ」の絵文字に見える場合は Unicode 13 に対応している環境です. 「クマ🐻」と「雪の結晶❄️」に見えている場合は対応していません. 
+                    </p>
+
+                    <hr>
+
+                    <div class="row justify-content-center">
+                        <div class="col-4 col-md-3 center-block">
+                            <!-- Tweet ボタン -->
+                            <div id="resultTweet"></div>
+                        </div>
+                        <div class="col-4 col-md-3 center-block">
+                            <!-- 結果画像出力用 -->
+                            <form> <!-- 画像変換ボタン -->
+                                <button id="captureButton" class="btn btn--orange">結果を画像化</button>
+                            </form>
+                        </div>
+                    </div> <!-- class="row" -->
+
+                    <div id="image_preview" style="display: none">
+                        画像プレビュー : <img src="" id="resultImg" class="img-responsive" />
+                        <a download="emojiConvertor" id="downloadButton">画像をダウンロード</a>
+                    </div> <!-- id="image_preview" -->
+
+                    <hr>
+
+                    <h4>説明</h4>
+                    <p>
+                    Twitter の絵文字を PC ブラウザでコピーすると日本語名称になってしまう場合があるので, 
+                    それを再変換する目的のために作成しました. 
+                    とりあえず「サンプル」や「ランダム5選」を押してみましょう. 
+                    </p>
+
+                    <h4>ライセンス</h4>
+                    <h5>絵文字フォント</h5>
+                    <p>
+                    <a href="https://github.com/eosrei/twemoji-color-font" target="blank">Twitter Color Emoji SVGinOT Font</a>
+                    を使用しています.
+                    </p>
+                    <ul>
+                        <li>
+                            Copyright 2016 Brad Erickson <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0</a> / MIT
+                        </li>
+                        <li>
+                            Copyright 2016 Twitter, Inc. <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0</a>
+                        </li>
+                        <li>
+                            Copyright 2013 Joe Loughry and Terence Eden MIT
+                        </li>
+                    </ul>
+
+                    <p>
+                    <a href="https://github.com/mozilla/twemoji-colr" target="blank">twemoji-colr</a> を使用しています. 
+                    </p>
+                    <ul>
+                        <li>
+                            Copyright 2016-2018, Mozilla Foundation <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC-BY 4.0</a> / <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License Version 2.0</a>
+                        </li>
+                    </ul>
+
+                    <h5>画像生成</h5>
+                    <p>
+                    <a href="https://html2canvas.hertzen.com/" target="_blank">html2canvas.js</a>
+                    を使用しています. 
+                    </p>
+                    <p>
+                    Copyright 2021 Niklas von Hertzenk. Licensed under the MIT License.
+                    </p>
+
+                    <h4>参考リンク</h4>
+                    <ol>
+                        <li>
+                            <a href="https://yag-ays.github.io/project/emoji-ja/" target="blank">Unicode絵文字の日本語読み/キーワード/分類辞書 - Out-of-the-box</a>
+                        </li>
+                        <li>
+                            <a href="https://xem.github.io/unicode13/emoji.html" target="blank">Unicode 13 emoji</a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/eosrei/twemoji-color-font" target="blank">eosrei/twemoji-color-font - GitHub</a>
+                        </li>
+                        <li>
+                            <a href="https://into-the-program.com/javascript-textarea-auto-adjusts-height/" target="blank">【JavaScript】textareaの入力内容で高さを自動調整する - Into the Program</a>
+                        </li>
+                        <li>
+                            <a href="https://gihyo.jp/admin/serial/01/ubuntu-recipe/0332" target="blank">Ubuntu Weekly Recipe 第332回　Webフォントをつくろう - 技術評論社</a>
+                        </li>
+                    </ol>
+
+                    <h4>免責事項</h4>
+                    <p>
+                    このツールを使用したことによって生じる損害等の一切の責任を作成者は負わないものとします. 
+                    </p>
+
+                    <h4>その他のアプリ</h4>
+                    <ul>
+                        <li>
+                            <a href="https://mkuriki.com/kana2greek/">かな → ギリシア文字変換</a>
+                        </li>
+                        <li>
+                            <a href="https://mkuriki.com/kana2kanji/">かな → 由来漢字変換</a>
+                        </li>
+                    </ul>
+
+                    <h4>コメント</h4>
+                    <p>
+                    Unicode における絵文字の名称が英語しか定まっていないために
+                    いろんなところで好き勝手に日本語訳が存在する関係で苦労しました. 
+                    詳細はそのうちブログ「<a href="https://log.mkuriki.com/" target="_blank">みんな重力のせい</a>」に書きます. 
+                    </p>
+
+                </div> <!-- row justify-content-center -->
+            </div> <!-- col-12 col-md-8 -->
+
+        </div><!--/.container-->
+
+        <!-- <script src="./js/emoji_ja.json.js"></script> -->
+        <script src="./js/twitter_emoji.json.js"></script>
+        <script src="./js/kana2emoji_conv.js"></script>
+        <script src="./js/html2canvas.js"></script>
+
+
+        <!-- Bootstrap core JavaScript
+            ================================================== -->
+            <!-- Placed at the end of the document so the pages load faster -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+            <script src="./bootstrap.js/bootstrap.min.js"></script>
+
+    </body>
+</html>
+
